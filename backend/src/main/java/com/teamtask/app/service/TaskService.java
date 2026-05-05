@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TaskService {
 
     private final TaskRepository taskRepository;
@@ -114,7 +116,8 @@ public class TaskService {
             done = tasks.stream().filter(t -> t.getStatus() == TaskStatus.DONE).count();
         }
 
-        List<Task> overdueTasks = taskRepository.findOverdueTasks(currentUser, LocalDateTime.now());
+        // FIX: pass TaskStatus.DONE as parameter instead of string literal in JPQL
+        long overdueCount = taskRepository.findOverdueTasks(currentUser, TaskStatus.DONE, LocalDateTime.now()).size();
 
         return DashboardStats.builder()
                 .totalProjects(projects.size())
@@ -122,7 +125,7 @@ public class TaskService {
                 .todoTasks(todo)
                 .inProgressTasks(inProgress)
                 .doneTasks(done)
-                .overdueTasks(overdueTasks.size())
+                .overdueTasks(overdueCount)
                 .totalMembers(userRepository.count())
                 .build();
     }

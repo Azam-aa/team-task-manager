@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -30,7 +31,7 @@ public class ProjectService {
     public ProjectResponse createProject(ProjectRequest request, User currentUser) {
         Set<User> members = new HashSet<>();
         members.add(currentUser);
-        if (request.getMemberIds() != null) {
+        if (request.getMemberIds() != null && !request.getMemberIds().isEmpty()) {
             members.addAll(userRepository.findAllById(request.getMemberIds()));
         }
 
@@ -58,7 +59,7 @@ public class ProjectService {
 
         if (request.getMemberIds() != null) {
             Set<User> members = new HashSet<>(userRepository.findAllById(request.getMemberIds()));
-            members.add(currentUser);
+            members.add(currentUser); // creator always stays as member
             project.setMembers(members);
         }
 
@@ -66,17 +67,19 @@ public class ProjectService {
     }
 
     public List<ProjectResponse> getAllProjects(User currentUser) {
-        List<Project> projects = projectRepository.findAllAccessibleByUser(currentUser);
-        return projects.stream().map(this::toResponse).collect(Collectors.toList());
+        return projectRepository.findAllAccessibleByUser(currentUser)
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public ProjectResponse getProject(Long projectId, User currentUser) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        boolean isMember = project.getMembers().contains(currentUser) ||
-                project.getCreatedBy().getId().equals(currentUser.getId());
-        if (!isMember) {
+        boolean isMember = project.getMembers().stream()
+                .anyMatch(m -> m.getId().equals(currentUser.getId()));
+        boolean isCreator = project.getCreatedBy().getId().equals(currentUser.getId());
+
+        if (!isMember && !isCreator) {
             throw new AccessDeniedException("Access denied to this project");
         }
         return toResponse(project);
@@ -104,7 +107,7 @@ public class ProjectService {
                 .createdByName(project.getCreatedBy().getFullName())
                 .createdById(project.getCreatedBy().getId())
                 .memberCount(project.getMembers().size())
-                .taskCount((int)(todo + inProgress + done))
+                .taskCount((int) (todo + inProgress + done))
                 .todoCount(todo)
                 .inProgressCount(inProgress)
                 .doneCount(done)

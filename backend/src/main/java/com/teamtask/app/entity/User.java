@@ -11,7 +11,11 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -30,14 +34,18 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.MEMBER;
 
+    // Not exposed in JSON — only used internally
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     @JsonIgnore
+    @Builder.Default
     private Set<Project> projects = new HashSet<>();
 
     @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY)
     @JsonIgnore
+    @Builder.Default
     private List<Task> assignedTasks = new ArrayList<>();
 
     @Override

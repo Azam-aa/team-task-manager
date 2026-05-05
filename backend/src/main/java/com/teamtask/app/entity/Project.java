@@ -11,7 +11,11 @@ import java.util.*;
 
 @Entity
 @Table(name = "projects")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Project {
 
     @Id
@@ -35,10 +39,12 @@ public class Project {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
+    @Builder.Default
     private Set<User> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
+    @Builder.Default
     private List<Task> tasks = new ArrayList<>();
 
     @CreationTimestamp

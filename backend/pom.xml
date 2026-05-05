@@ -79,6 +79,12 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- Jackson Java 8 Date/Time support (LocalDateTime -> ISO string) -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+
     <!-- Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

@@ -76,6 +76,96 @@ team-task-manager/
 └── DEPLOY.md
 ```
 
+## 🏗️ PROJECT ARCHITECTURE
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    FRONTEND (React + Vite)           │
+│  Port 5173                                          │
+│  ┌──────────┐ ┌───────────┐ ┌────────────┐          │
+│  │ Login/   │ │ Dashboard │ │ Projects/  │          │
+│  │ Signup   │ │   Page    │ │ TaskBoard  │          │
+│  └────┬─────┘ └─────┬─────┘ └─────┬──────┘          │
+│       │             │             │                  │
+│       └──────┬──────┴─────────────┘                  │
+│              │  Axios + JWT Token                    │
+│              ▼                                       │
+│     ┌──────────────────┐                             │
+│     │   api.js (Axios) │  ← Attaches Bearer token   │
+│     └────────┬─────────┘    to every request         │
+└──────────────┼───────────────────────────────────────┘
+               │  HTTP REST calls (/api/*)
+               ▼
+┌──────────────────────────────────────────────────────┐
+│              BACKEND (Spring Boot 3.2)               │
+│  Port 8080                                           │
+│                                                      │
+│  ┌──────────────────┐   ┌──────────────────────┐     │
+│  │  AuthController  │   │  SecurityConfig      │     │
+│  │  POST /api/auth/ │   │  + JwtAuthFilter     │     │
+│  │  login, signup   │   │  + BCrypt Passwords  │     │
+│  └────────┬─────────┘   └──────────┬───────────┘     │
+│           │                        │                 │
+│  ┌────────▼─────────┐   ┌─────────▼────────────┐    │
+│  │ ProjectController│   │   TaskController     │    │
+│  │ CRUD /api/projects│   │ CRUD /api/tasks      │    │
+│  │ (ADMIN only)     │   │ + dashboard stats    │    │
+│  └────────┬─────────┘   └─────────┬────────────┘    │
+│           │                        │                 │
+│  ┌────────▼────────────────────────▼────────────┐    │
+│  │          Service Layer (Business Logic)      │    │
+│  │  ProjectService    TaskService    AuthService │    │
+│  └────────────────────┬─────────────────────────┘    │
+│                       │                              │
+│  ┌────────────────────▼─────────────────────────┐    │
+│  │          Repository Layer (Spring Data JPA)  │    │
+│  │  UserRepository  ProjectRepository  TaskRepo │    │
+│  └────────────────────┬─────────────────────────┘    │
+│                       │                              │
+│  ┌────────────────────▼─────────────────────────┐    │
+│  │            Database (H2 / MySQL)             │    │
+│  │  Tables: users, projects, tasks,             │    │
+│  │          project_members (join table)         │    │
+│  └──────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🗄️ DATABASE DESIGN (Entity Relationships)
+
+```
+┌──────────────┐        ┌────────────────────┐        ┌──────────────┐
+│    USERS     │        │  PROJECT_MEMBERS   │        │   PROJECTS   │
+├──────────────┤        │   (Join Table)     │        ├──────────────┤
+│ id (PK)      │◄──────┐├────────────────────┤┌──────►│ id (PK)      │
+│ email (UQ)   │       ││ user_id (FK)       ││       │ name         │
+│ full_name    │       ││ project_id (FK)    ││       │ description  │
+│ password     │       │└────────────────────┘│       │ created_by   │──► users.id
+│ role (ENUM)  │       │                      │       │ created_at   │
+│  ADMIN/MEMBER│       │                      │       │ updated_at   │
+└──────┬───────┘       │                      │       └──────┬───────┘
+       │               │                      │              │
+       │               │                      │              │
+       │    ┌──────────┴──────────────────────┴──┐           │
+       │    │            TASKS                    │           │
+       │    ├─────────────────────────────────────┤           │
+       └───►│ id (PK)                             │◄──────────┘
+            │ title                               │
+            │ description                         │
+            │ status (TO_DO/IN_PROGRESS/DONE)     │
+            │ priority (LOW/MEDIUM/HIGH)          │
+            │ due_date                            │
+            │ project_id (FK) ──────► projects.id │
+            │ assignee_id (FK) ─────► users.id    │
+            │ created_by (FK) ──────► users.id    │
+            │ created_at                          │
+            │ updated_at                          │
+            └─────────────────────────────────────┘
+```
+
+---
+
 ---
 
 ## 📡 API Endpoints
@@ -99,4 +189,4 @@ team-task-manager/
 ---
 
 ## 📝 License
-MIT
+Azam Pasha

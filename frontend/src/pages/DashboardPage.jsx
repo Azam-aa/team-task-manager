@@ -8,14 +8,14 @@ import toast from 'react-hot-toast';
 function StatCard({ icon, label, value, color }) {
   return (
     <div className="stat-card">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ background: `${color}20`, borderRadius: '0.75rem', padding: '0.75rem' }}>
+      <div className="stat-card-header">
+        <div className="stat-card-icon" style={{ background: `${color}20` }}>
           {icon}
         </div>
       </div>
       <div>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.2rem' }}>{label}</p>
-        <p style={{ color: '#f1f5f9', fontSize: '2rem', fontWeight: 800 }}>{value ?? 0}</p>
+        <p className="stat-card-label">{label}</p>
+        <p className="stat-card-value">{value ?? 0}</p>
       </div>
     </div>
   );
@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const firstName = user?.fullName?.split(' ')[0] || 'there';
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="app-layout">
       <Sidebar />
       <main className="main-content">
         {/* Header */}
@@ -57,18 +57,18 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+            {/* Stats Grid – 3 cols desktop, 2 cols tablet, 1 col mobile */}
+            <div className="stats-grid">
               <StatCard icon={<FolderKanban size={22} color="#818cf8" />} label="Total Projects" value={stats?.totalProjects} color="#6366f1" />
-              <StatCard icon={<CheckSquare size={22} color="#34d399" />} label="Total Tasks" value={stats?.totalTasks} color="#10b981" />
-              <StatCard icon={<Clock size={22} color="#fbbf24" />} label="In Progress" value={stats?.inProgressTasks} color="#f59e0b" />
-              <StatCard icon={<AlertTriangle size={22} color="#f87171" />} label="Overdue" value={stats?.overdueTasks} color="#ef4444" />
-              <StatCard icon={<TrendingUp size={22} color="#34d399" />} label="Completed" value={stats?.doneTasks} color="#10b981" />
-              <StatCard icon={<Users size={22} color="#818cf8" />} label="Team Members" value={stats?.totalMembers} color="#6366f1" />
+              <StatCard icon={<CheckSquare size={22} color="#34d399" />}  label="Total Tasks"    value={stats?.totalTasks}    color="#10b981" />
+              <StatCard icon={<Clock size={22} color="#fbbf24" />}        label="In Progress"    value={stats?.inProgressTasks} color="#f59e0b" />
+              <StatCard icon={<AlertTriangle size={22} color="#f87171" />} label="Overdue"       value={stats?.overdueTasks}  color="#ef4444" />
+              <StatCard icon={<TrendingUp size={22} color="#34d399" />}   label="Completed"      value={stats?.doneTasks}     color="#10b981" />
+              <StatCard icon={<Users size={22} color="#818cf8" />}        label="Team Members"   value={stats?.totalMembers}  color="#6366f1" />
             </div>
 
-            {/* Progress Section */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {/* Progress + Quick Stats */}
+            <div className="dashboard-bottom-grid">
               {/* Completion Progress */}
               <div className="card">
                 <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

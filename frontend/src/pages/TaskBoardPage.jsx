@@ -313,7 +313,7 @@ export default function TaskBoardPage() {
   const tasksByStatus = (status) => tasks.filter(t => t.status === status);
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="app-layout">
       <Sidebar />
       <main className="main-content">
         <div style={{ marginBottom: '2rem' }}>

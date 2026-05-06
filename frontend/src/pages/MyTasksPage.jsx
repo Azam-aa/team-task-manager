@@ -61,7 +61,7 @@ export default function MyTasksPage() {
   );
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="app-layout">
       <Sidebar />
       <main className="main-content">
         <div style={{ marginBottom: '2rem' }}>
